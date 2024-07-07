@@ -62,3 +62,81 @@ func TestNewAuthor(t *testing.T) {
 		assert.EqualError(t, err, "author length must be less than 64")
 	})
 }
+
+func TestCreateArticle(t *testing.T) {
+	successCases := []struct {
+		id      uint
+		name    string
+		title   string
+		content string
+		author  string
+	}{
+		{
+			id:      1,
+			name:    "Valid Article",
+			title:   "Valid Title",
+			content: "Valid Content",
+			author:  "Valid Author",
+		},
+	}
+
+	errorCases := []struct {
+		id      uint
+		name    string
+		title   string
+		content string
+		author  string
+		errMsg  string
+	}{
+		{
+			id:      3,
+			name:    "Empty Content",
+			title:   "Valid Title",
+			content: "",
+			author:  "Valid Author",
+			errMsg:  "content cannot be empty",
+		},
+		{
+			id:      4,
+			name:    "Empty Author",
+			title:   "Valid Title",
+			content: "Valid Content",
+			author:  "",
+			errMsg:  "author cannot be empty",
+		},
+		{
+			id:      5,
+			name:    "Too Long Title",
+			title:   string(make([]byte, domain.MaxTitleLength+1)),
+			content: "Valid Content",
+			author:  "Valid Author",
+			errMsg:  "title length must be less than 255",
+		},
+	}
+
+	t.Run("Success Cases", func(t *testing.T) {
+		for _, tt := range successCases {
+			t.Run(tt.name, func(t *testing.T) {
+				article, err := domain.CreateArticle(tt.id, tt.title, tt.content, tt.author)
+				assert.NoError(t, err)
+				assert.Equal(t, domain.ID(tt.id), article.ID)
+				expectedTitle := domain.Title(tt.title)
+				assert.Equal(t, expectedTitle, article.Title)
+				assert.Equal(t, domain.Content(tt.content), article.Content)
+				assert.Equal(t, domain.Author(tt.author), article.Author)
+
+				// 時間が一致するかどうかはうまく確認できない
+			})
+		}
+	})
+
+	t.Run("Error Cases", func(t *testing.T) {
+		for _, tt := range errorCases {
+			t.Run(tt.name, func(t *testing.T) {
+				_, err := domain.CreateArticle(tt.id, tt.title, tt.content, tt.author)
+				assert.Error(t, err)
+				assert.EqualError(t, err, tt.errMsg)
+			})
+		}
+	})
+}
