@@ -5,18 +5,12 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/u-masato/blogger/2-3/internal/domain"
 )
 
 type ArticleController struct{}
 
-type Article struct {
-	ID      int
-	Title   string
-	Content string
-	Author  string
-}
-
-var articlesMap = make(map[int]*Article)
+var articlesMap = make(map[int]*domain.Article)
 var articleNextID = 1
 
 func NewArticleController() *ArticleController {
@@ -26,21 +20,25 @@ func NewArticleController() *ArticleController {
 func (ctrl *ArticleController) GetAllArticles(c *gin.Context) {}
 
 func (ctrl *ArticleController) CreateArticle(c *gin.Context) {
-	var article Article
+	article, err := domain.CreateArticle(
+		uint(articleNextID),
+		c.PostForm("title"),
+		c.PostForm("content"),
+		c.PostForm("author"),
+	)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-	article.ID = articleNextID
-	article.Title = c.PostForm("title")
-	article.Content = c.PostForm("content")
-	article.Author = c.PostForm("author")
-	articlesMap[article.ID] = &article
+	articlesMap[int(article.ID)] = article
 	articleNextID++
 
 	c.JSON(http.StatusCreated, article)
 }
 
 func (ctrl *ArticleController) GetArticle(c *gin.Context) {
-	id := c.Param("id")
-	articleID, err := strconv.Atoi(id)
+	articleID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
