@@ -1,0 +1,7 @@
+# Makefile
+
+.PHONY: lint
+
+lint:
+	go fmt ./...
+	go vet ./...
