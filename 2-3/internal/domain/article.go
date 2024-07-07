@@ -16,11 +16,11 @@ const (
 )
 
 func NewTitle(title string) (Title, error) {
-	if title == "" {
-		return "", errors.New("title cannot be empty")
-	}
 	if len(title) > MaxTitleLength {
 		return "", fmt.Errorf("title length must be less than %d", MaxTitleLength)
+	}
+	if title == "" {
+		return Title("No Title"), nil
 	}
 	return Title(title), nil
 }
@@ -55,7 +55,7 @@ type Article struct {
 	UpdatedAt time.Time
 }
 
-func NewArticle(id ID, title Title, content Content, author Author, createdAt, updatedAt time.Time) *Article {
+func newArticle(id ID, title Title, content Content, author Author, createdAt, updatedAt time.Time) *Article {
 	return &Article{
 		ID:        id,
 		Title:     title,
@@ -80,5 +80,7 @@ func CreateArticle(id uint, title, content, author string) (*Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewArticle(i_d, t, c, a, time.Now(), time.Now()), nil
+	// ここでtime.Now() してしまうと、テストがむずかしくなる
+	now := time.Now()
+	return newArticle(i_d, t, c, a, now, now), nil
 }
