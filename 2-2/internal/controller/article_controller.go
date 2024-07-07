@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +38,22 @@ func (ctrl *ArticleController) CreateArticle(c *gin.Context) {
 	c.JSON(http.StatusCreated, article)
 }
 
-func (ctrl *ArticleController) GetArticle(c *gin.Context) {}
+func (ctrl *ArticleController) GetArticle(c *gin.Context) {
+	id := c.Param("id")
+	articleID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	article := articlesMap[articleID]
+	if article == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found!"})
+		return
+	}
+
+	c.JSON(http.StatusOK, article)
+}
 
 func (ctrl *ArticleController) UpdateArticle(c *gin.Context) {}
 
