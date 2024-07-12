@@ -3,26 +3,14 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/u-masato/blogger/3-1/internal/controller"
-	"github.com/u-masato/blogger/3-1/internal/domain"
+	"github.com/u-masato/blogger/3-1/repository"
 )
-
-// Dummy Article Repository
-type DummyArticleRepository struct{}
-
-func (r *DummyArticleRepository) Get(id domain.ArticleID) (*domain.Article, error) {
-	return &domain.Article{}, nil
-}
-
-func (r *DummyArticleRepository) Create(article *domain.Article) error {
-	return nil
-}
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
 
-	articleController := controller.NewArticleController(
-		&DummyArticleRepository{},
-	)
+	articleRepo := repository.NewArticleRepository()
+	articleController := controller.NewArticleController(articleRepo)
 
 	// 記事関連のエンドポイント
 	articleRoutes := router.Group("/articles")
