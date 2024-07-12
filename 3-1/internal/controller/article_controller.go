@@ -5,16 +5,24 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/u-masato/blogger/2-3/internal/domain"
+	"github.com/u-masato/blogger/3-1/internal/domain"
 )
 
-type ArticleController struct{}
+type ArticleController struct {
+	articleRepository IArticleRepository
+}
 
-var articlesMap = make(map[int]*domain.Article)
 var articleNextID = 1
 
-func NewArticleController() *ArticleController {
-	return &ArticleController{}
+type IArticleRepository interface {
+	Get(id domain.ArticleID) (*domain.Article, error)
+	Create(article *domain.Article) error
+}
+
+func NewArticleController(articleRepository IArticleRepository) *ArticleController {
+	return &ArticleController{
+		articleRepository: articleRepository,
+	}
 }
 
 func (ctrl *ArticleController) GetAllArticles(c *gin.Context) {}
@@ -30,8 +38,7 @@ func (ctrl *ArticleController) CreateArticle(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	articlesMap[int(article.ID)] = article
+	ctrl.articleRepository.Create(article)
 	articleNextID++
 
 	c.JSON(http.StatusCreated, article)
@@ -43,8 +50,12 @@ func (ctrl *ArticleController) GetArticle(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
+	article, err := ctrl.articleRepository.Get(domain.ArticleID(articleID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-	article := articlesMap[articleID]
 	if article == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found!"})
 		return
