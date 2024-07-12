@@ -4,20 +4,20 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/u-masato/blogger/2-3/internal/domain"
+	"github.com/u-masato/blogger/3-1/internal/domain"
 )
 
 func TestNewTitle(t *testing.T) {
 	t.Run("Valid Title", func(t *testing.T) {
 		title, err := domain.NewTitle("Valid Title")
 		assert.NoError(t, err)
-		assert.Equal(t, domain.Title("Valid Title"), title)
+		assert.Equal(t, domain.ArticleTitle("Valid Title"), title)
 	})
 
 	t.Run("Empty Title", func(t *testing.T) {
 		title, err := domain.NewTitle("")
 		assert.NoError(t, err)
-		assert.Equal(t, domain.Title("No Title"), title)
+		assert.Equal(t, domain.ArticleTitle("No Title"), title)
 	})
 
 	t.Run("Too Long Title", func(t *testing.T) {
@@ -119,8 +119,8 @@ func TestCreateArticle(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				article, err := domain.CreateArticle(tt.id, tt.title, tt.content, tt.author)
 				assert.NoError(t, err)
-				assert.Equal(t, domain.ID(tt.id), article.ID)
-				expectedTitle := domain.Title(tt.title)
+				assert.Equal(t, domain.ArticleID(tt.id), article.ID)
+				expectedTitle := domain.ArticleTitle(tt.title)
 				assert.Equal(t, expectedTitle, article.Title)
 				assert.Equal(t, domain.Content(tt.content), article.Content)
 				assert.Equal(t, domain.Author(tt.author), article.Author)
