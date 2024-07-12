@@ -6,23 +6,23 @@ import (
 	"time"
 )
 
-type ID uint
+type ArticleID uint
 
-type Title string
+type ArticleTitle string
 
 const (
 	MaxTitleLength  = 255
 	MaxAuthorLength = 64
 )
 
-func NewTitle(title string) (Title, error) {
+func NewTitle(title string) (ArticleTitle, error) {
 	if len(title) > MaxTitleLength {
 		return "", fmt.Errorf("title length must be less than %d", MaxTitleLength)
 	}
 	if title == "" {
-		return Title("No Title"), nil
+		return ArticleTitle("No Title"), nil
 	}
-	return Title(title), nil
+	return ArticleTitle(title), nil
 }
 
 type Content string
@@ -47,15 +47,15 @@ func NewAuthor(author string) (Author, error) {
 }
 
 type Article struct {
-	ID        ID
-	Title     Title
+	ID        ArticleID
+	Title     ArticleTitle
 	Content   Content
 	Author    Author
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func newArticle(id ID, title Title, content Content, author Author, createdAt, updatedAt time.Time) *Article {
+func newArticle(id ArticleID, title ArticleTitle, content Content, author Author, createdAt, updatedAt time.Time) *Article {
 	return &Article{
 		ID:        id,
 		Title:     title,
@@ -67,7 +67,7 @@ func newArticle(id ID, title Title, content Content, author Author, createdAt, u
 }
 
 func CreateArticle(id uint, title, content, author string) (*Article, error) {
-	i_d := ID(id)
+	i_d := ArticleID(id)
 	t, err := NewTitle(title)
 	if err != nil {
 		return nil, err
