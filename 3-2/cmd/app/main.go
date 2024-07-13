@@ -3,14 +3,16 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/u-masato/blogger/3-2/internal/controller"
-	"github.com/u-masato/blogger/3-2/repository"
+	"github.com/u-masato/blogger/3-2/internal/repository"
+	"github.com/u-masato/blogger/3-2/internal/usecase"
 )
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
 
 	articleRepo := repository.NewArticleRepository()
-	articleController := controller.NewArticleController(articleRepo)
+	articleUC := usecase.NewArticleUsecase(articleRepo)
+	articleController := controller.NewArticleController(articleUC)
 
 	// 記事関連のエンドポイント
 	articleRoutes := router.Group("/articles")
