@@ -9,9 +9,16 @@ import (
 	"github.com/u-masato/blogger/3-3/internal/usecase/mock"
 )
 
+type MockPresenter struct{}
+
+func (p *MockPresenter) Progress(percentage int)         {}
+func (p *MockPresenter) Complete()                       {}
+func (p *MockPresenter) Present(article *domain.Article) {}
+
 func TestUsecase_GetArticleByID(t *testing.T) {
 	mockRepo := mock.NewMockArticleRepository()
-	uc := NewArticleUsecase(mockRepo)
+	mockPresenter := &MockPresenter{}
+	uc := NewArticleUsecase(mockRepo, mockPresenter)
 
 	articleID := domain.ArticleID(1)
 	expectedArticle := &domain.Article{
@@ -29,7 +36,8 @@ func TestUsecase_GetArticleByID(t *testing.T) {
 
 func TestUsecase_GetArticleByID_NotFound(t *testing.T) {
 	mockRepo := mock.NewMockArticleRepository()
-	uc := NewArticleUsecase(mockRepo)
+	mockPresenter := &MockPresenter{}
+	uc := NewArticleUsecase(mockRepo, mockPresenter)
 
 	articleID := domain.ArticleID(1)
 
@@ -40,7 +48,8 @@ func TestUsecase_GetArticleByID_NotFound(t *testing.T) {
 
 func TestUsecase_CreateArticle(t *testing.T) {
 	mockRepo := mock.NewMockArticleRepository()
-	uc := NewArticleUsecase(mockRepo)
+	mockPresenter := &MockPresenter{}
+	uc := NewArticleUsecase(mockRepo, mockPresenter)
 
 	title := "Title"
 	content := "Content"
@@ -60,7 +69,8 @@ func TestUsecase_CreateArticle(t *testing.T) {
 
 func TestUsecase_CreateArticle_ValidationError(t *testing.T) {
 	mockRepo := mock.NewMockArticleRepository()
-	uc := NewArticleUsecase(mockRepo)
+	mockPresenter := &MockPresenter{}
+	uc := NewArticleUsecase(mockRepo, mockPresenter)
 
 	err := uc.CreateArticle(context.Background(), "", "Content", "Author")
 	assert.NoError(t, err, "when title is empty, it should not return error")

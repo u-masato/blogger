@@ -11,13 +11,21 @@ type IArticleRepository interface {
 	Create(article *domain.Article) error
 }
 
-type Usecase struct {
-	articleRepo IArticleRepository
+type IArticlePresenter interface {
+	Progress(percentage int)
+	Complete()
+	Present(a *domain.Article)
 }
 
-func NewArticleUsecase(articleRepo IArticleRepository) *Usecase {
+type Usecase struct {
+	articleRepo      IArticleRepository
+	articlePresenter IArticlePresenter
+}
+
+func NewArticleUsecase(articleRepo IArticleRepository, articlePre IArticlePresenter) *Usecase {
 	return &Usecase{
-		articleRepo: articleRepo,
+		articleRepo:      articleRepo,
+		articlePresenter: articlePre,
 	}
 }
 
@@ -26,12 +34,14 @@ func (uc *Usecase) GetArticleByID(ctx context.Context, id domain.ArticleID) (*do
 	if err != nil {
 		return nil, err
 	}
+	uc.articlePresenter.Present(a)
 	return a, nil
 }
 
 var articleNextID = 1
 
 func (uc *Usecase) CreateArticle(ctx context.Context, title, content, author string) error {
+	uc.articlePresenter.Progress(10)
 	article, err := domain.CreateArticle(
 		uint(articleNextID),
 		title,
@@ -41,6 +51,12 @@ func (uc *Usecase) CreateArticle(ctx context.Context, title, content, author str
 	if err != nil {
 		return err
 	}
+	uc.articlePresenter.Progress(50)
 	articleNextID++
-	return uc.articleRepo.Create(article)
+	err = uc.articleRepo.Create(article)
+	if err != nil {
+		return err
+	}
+	uc.articlePresenter.Complete()
+	return nil
 }
