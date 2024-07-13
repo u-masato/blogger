@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
@@ -9,39 +10,45 @@ import (
 )
 
 type ArticleController struct {
-	articleRepository IArticleRepository
+	articleUC IArticleUseCase
 }
 
-var articleNextID = 1
-
-type IArticleRepository interface {
-	Get(id domain.ArticleID) (*domain.Article, error)
-	Create(article *domain.Article) error
+type IArticleUseCase interface {
+	GetArticleByID(ctx context.Context, id domain.ArticleID) (*domain.Article, error)
+	CreateArticle(ctx context.Context, title, content, author string) error
 }
 
-func NewArticleController(articleRepository IArticleRepository) *ArticleController {
+func NewArticleController(au IArticleUseCase) *ArticleController {
 	return &ArticleController{
-		articleRepository: articleRepository,
+		articleUC: au,
 	}
 }
 
 func (ctrl *ArticleController) GetAllArticles(c *gin.Context) {}
 
 func (ctrl *ArticleController) CreateArticle(c *gin.Context) {
-	article, err := domain.CreateArticle(
-		uint(articleNextID),
-		c.PostForm("title"),
-		c.PostForm("content"),
-		c.PostForm("author"),
-	)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	title := c.PostForm("title")
+	content := c.PostForm("content")
+	author := c.PostForm("author")
+	if title == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "title cannot be empty"})
 		return
 	}
-	ctrl.articleRepository.Create(article)
-	articleNextID++
-
-	c.JSON(http.StatusCreated, article)
+	if content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "content cannot be empty"})
+		return
+	}
+	if author == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "author cannot be empty"})
+		return
+	}
+	// gin.Context から context.Context を取得
+	ctx := c.Request.Context()
+	if err := ctrl.articleUC.CreateArticle(ctx, title, content, author); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(http.StatusCreated)
 }
 
 func (ctrl *ArticleController) GetArticle(c *gin.Context) {
@@ -50,7 +57,9 @@ func (ctrl *ArticleController) GetArticle(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
-	article, err := ctrl.articleRepository.Get(domain.ArticleID(articleID))
+	// gin.Context から context.Context を取得
+	ctx := c.Request.Context()
+	article, err := ctrl.articleUC.GetArticleByID(ctx, domain.ArticleID(articleID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
