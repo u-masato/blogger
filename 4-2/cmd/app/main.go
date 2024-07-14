@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/u-masato/blogger/4-2/internal/controller"
+	"github.com/u-masato/blogger/4-2/internal/infra"
 	"github.com/u-masato/blogger/4-2/internal/repository"
 	"github.com/u-masato/blogger/4-2/internal/usecase"
 )
@@ -10,7 +11,10 @@ import (
 func setupRouter() *gin.Engine {
 	router := gin.Default()
 
-	articleRepo := repository.NewArticleRepository()
+	// データベース初期化
+	db := infra.InitDB()
+
+	articleRepo := repository.NewSQLArticleRepository(db)
 	articleUC := usecase.NewArticleUsecase(articleRepo)
 	articleController := controller.NewArticleController(articleUC)
 

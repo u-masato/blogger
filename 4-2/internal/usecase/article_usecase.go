@@ -7,8 +7,8 @@ import (
 )
 
 type IArticleRepository interface {
-	Get(id domain.ArticleID) (*domain.Article, error)
-	Create(article *domain.Article) error
+	Get(ctx context.Context, id domain.ArticleID) (*domain.Article, error)
+	Create(ctx context.Context, article *domain.Article) error
 }
 
 type Usecase struct {
@@ -22,7 +22,7 @@ func NewArticleUsecase(articleRepo IArticleRepository) *Usecase {
 }
 
 func (uc *Usecase) GetArticleByID(ctx context.Context, id domain.ArticleID) (*domain.Article, error) {
-	a, err := uc.articleRepo.Get(id)
+	a, err := uc.articleRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -42,5 +42,5 @@ func (uc *Usecase) CreateArticle(ctx context.Context, title, content, author str
 		return err
 	}
 	articleNextID++
-	return uc.articleRepo.Create(article)
+	return uc.articleRepo.Create(ctx, article)
 }
