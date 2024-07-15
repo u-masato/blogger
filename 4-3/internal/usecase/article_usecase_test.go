@@ -2,16 +2,24 @@ package usecase
 
 import (
 	"context"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/u-masato/blogger/4-3/internal/domain"
 	"github.com/u-masato/blogger/4-3/internal/usecase/mock"
+	"testing"
 )
+
+type MockTxAdmin struct{}
+
+func (m *MockTxAdmin) Transaction(ctx context.Context, f func(ctx context.Context) error) error {
+	return f(ctx)
+}
+
+var tx = &MockTxAdmin{}
 
 func TestUsecase_GetArticleByID(t *testing.T) {
 	mockRepo := mock.NewMockArticleRepository()
-	uc := NewArticleUsecase(mockRepo)
+	uc := NewArticleUsecase(mockRepo, tx)
 
 	articleID := domain.ArticleID(1)
 	expectedArticle := &domain.Article{
@@ -29,7 +37,7 @@ func TestUsecase_GetArticleByID(t *testing.T) {
 
 func TestUsecase_GetArticleByID_NotFound(t *testing.T) {
 	mockRepo := mock.NewMockArticleRepository()
-	uc := NewArticleUsecase(mockRepo)
+	uc := NewArticleUsecase(mockRepo, tx)
 
 	articleID := domain.ArticleID(1)
 
@@ -40,7 +48,7 @@ func TestUsecase_GetArticleByID_NotFound(t *testing.T) {
 
 func TestUsecase_CreateArticle(t *testing.T) {
 	mockRepo := mock.NewMockArticleRepository()
-	uc := NewArticleUsecase(mockRepo)
+	uc := NewArticleUsecase(mockRepo, tx)
 
 	title := "Title"
 	content := "Content"
@@ -60,7 +68,7 @@ func TestUsecase_CreateArticle(t *testing.T) {
 
 func TestUsecase_CreateArticle_ValidationError(t *testing.T) {
 	mockRepo := mock.NewMockArticleRepository()
-	uc := NewArticleUsecase(mockRepo)
+	uc := NewArticleUsecase(mockRepo, tx)
 
 	err := uc.CreateArticle(context.Background(), "", "Content", "Author")
 	assert.NoError(t, err, "when title is empty, it should not return error")

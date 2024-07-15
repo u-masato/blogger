@@ -9,16 +9,22 @@ import (
 type IArticleRepository interface {
 	Get(ctx context.Context, id domain.ArticleID) (*domain.Article, error)
 	Create(ctx context.Context, article *domain.Article) error
+	Update(ctx context.Context, article *domain.Article) error
+}
+
+type ITxAdmin interface {
+	Transaction(ctx context.Context, f func(ctx context.Context) error) error
 }
 
 type Usecase struct {
 	articleRepo IArticleRepository
+	tx          ITxAdmin
 }
 
-func NewArticleUsecase(articleRepo IArticleRepository) *Usecase {
+func NewArticleUsecase(articleRepo IArticleRepository, tx ITxAdmin) *Usecase {
 	return &Usecase{
 		articleRepo: articleRepo,
-	}
+		tx:          tx,
 }
 
 func (uc *Usecase) GetArticleByID(ctx context.Context, id domain.ArticleID) (*domain.Article, error) {
@@ -50,6 +56,12 @@ func (uc *Usecase) UpdateArticle(ctx context.Context, id domain.ArticleID, title
 	if err != nil {
 		return err
 	}
-	article.Update(title, content)
-	return nil
+	err = article.Update(title, content)
+	if err != nil {
+		return err
+	}
+	updateFunc := func(ctx context.Context) error {
+		return uc.articleRepo.Update(ctx, article)
+	}
+	return uc.tx.Transaction(ctx, updateFunc)
 }

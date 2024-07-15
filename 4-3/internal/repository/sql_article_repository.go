@@ -53,3 +53,13 @@ func (r *SQLArticleRepository) Create(ctx context.Context, article *domain.Artic
 
 	return nil
 }
+
+func (r *SQLArticleRepository) Update(ctx context.Context, article *domain.Article) error {
+	_, err := r.db.ExecContext(ctx,
+		`UPDATE articles SET title = ?, content = ?, updated = ? WHERE id = ?`,
+		article.Title, article.Content, article.UpdatedAt, article.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}

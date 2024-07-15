@@ -36,3 +36,11 @@ func (m *MockArticleRepository) Create(_ context.Context, article *domain.Articl
 	m.Articles[article.ID] = article
 	return nil
 }
+
+func (m *MockArticleRepository) Update(ctx context.Context, article *domain.Article) error {
+	if m.Err != nil {
+		return m.Err
+	}
+	m.Articles[article.ID] = article
+	return nil
+}

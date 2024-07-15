@@ -55,6 +55,22 @@ type Article struct {
 	UpdatedAt time.Time
 }
 
+func (a *Article) Update(title, content string) error {
+	t, err := NewTitle(title)
+	if err != nil {
+		return err
+	}
+	c, err := NewContent(content)
+	if err != nil {
+		return err
+	}
+	a.Title = t
+	a.Content = c
+	// ここでtime.Now() してしまうと、テストがむずかしくなる
+	a.UpdatedAt = time.Now()
+	return nil
+}
+
 func newArticle(id ArticleID, title ArticleTitle, content Content, author Author, createdAt, updatedAt time.Time) *Article {
 	return &Article{
 		ID:        id,
