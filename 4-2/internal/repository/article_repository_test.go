@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,7 +12,7 @@ import (
 func TestArticleRepository_Get(t *testing.T) {
 	t.Run("記事が存在しないとエラー", func(t *testing.T) {
 		repo := NewArticleRepository()
-		_, err := repo.Get(1)
+		_, err := repo.Get(context.Background(), 1)
 		assert.Error(t, err, "error should be raised")
 		assert.Equal(t, "article not found by id: 1", err.Error(), "error message should be returned")
 	})
@@ -23,10 +24,10 @@ func TestArticleRepository_Get(t *testing.T) {
 			Content: "content",
 			Author:  "author",
 		}
-		if err := repo.Create(a); err != nil {
+		if err := repo.Create(context.Background(), a); err != nil {
 			require.NoError(t, err, "error should not be raised")
 		}
-		actual, err := repo.Get(1)
+		actual, err := repo.Get(context.Background(), 1)
 		require.NoError(t, err, "error should not be raised")
 		assert.Equal(t, a, actual, "article should be returned")
 	})

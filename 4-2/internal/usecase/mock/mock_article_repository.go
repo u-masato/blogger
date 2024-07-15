@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"context"
 	"errors"
 
 	"github.com/u-masato/blogger/4-2/internal/domain"
@@ -17,7 +18,7 @@ func NewMockArticleRepository() *MockArticleRepository {
 	}
 }
 
-func (m *MockArticleRepository) Get(id domain.ArticleID) (*domain.Article, error) {
+func (m *MockArticleRepository) Get(_ context.Context, id domain.ArticleID) (*domain.Article, error) {
 	if m.Err != nil {
 		return nil, m.Err
 	}
@@ -28,7 +29,7 @@ func (m *MockArticleRepository) Get(id domain.ArticleID) (*domain.Article, error
 	return article, nil
 }
 
-func (m *MockArticleRepository) Create(article *domain.Article) error {
+func (m *MockArticleRepository) Create(_ context.Context, article *domain.Article) error {
 	if m.Err != nil {
 		return m.Err
 	}
