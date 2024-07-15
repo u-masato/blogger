@@ -1,6 +1,9 @@
 # Makefile
 
-.PHONY: run lint test migrate-up migrate-down
+.PHONY: run lint test migrate-up migrate-down install
+
+install:
+	brew install golang-migrate
 
 run:
 	go run ./cmd/app/main.go

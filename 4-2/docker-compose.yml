@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   bloger-db:
     image: mysql:8.4.1
