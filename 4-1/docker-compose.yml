@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  bloger-db:
+    image: mysql:8.4.1
+    # platform: linux/amd64
+    platform: linux/x86_64
+    container_name: bloger-db
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_USER: bloger
+      MYSQL_PASSWORD: bloger
+      MYSQL_DATABASE: bloger
+    volumes:
+      - bloger-db-data:/var/lib/mysql
+      - $PWD/_tools/mysql/conf.d:/etc/mysql/conf.d/cached
+    ports:
+      - "33306:3306"
+
+volumes:
+  bloger-db-data:
