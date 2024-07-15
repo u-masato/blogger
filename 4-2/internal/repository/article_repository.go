@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/u-masato/blogger/4-2/internal/domain"
@@ -14,7 +15,7 @@ func NewArticleRepository() *ArticleRepository {
 	return &ArticleRepository{}
 }
 
-func (r *ArticleRepository) Get(id domain.ArticleID) (*domain.Article, error) {
+func (r *ArticleRepository) Get(ctx context.Context, id domain.ArticleID) (*domain.Article, error) {
 	article, ok := articlesMap[int(id)]
 	if !ok {
 		return &domain.Article{}, fmt.Errorf("article not found by id: %d", id)
@@ -22,7 +23,7 @@ func (r *ArticleRepository) Get(id domain.ArticleID) (*domain.Article, error) {
 	return article, nil
 }
 
-func (r *ArticleRepository) Create(article *domain.Article) error {
+func (r *ArticleRepository) Create(ctx context.Context, article *domain.Article) error {
 	articlesMap[int(article.ID)] = article
 	return nil
 }
