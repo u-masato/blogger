@@ -16,6 +16,7 @@ type ArticleController struct {
 type IArticleUseCase interface {
 	GetArticleByID(ctx context.Context, id domain.ArticleID) (*domain.Article, error)
 	CreateArticle(ctx context.Context, title, content, author string) error
+	UpdateArticle(ctx context.Context, id domain.ArticleID, title, content string) error
 }
 
 func NewArticleController(au IArticleUseCase) *ArticleController {
@@ -73,6 +74,28 @@ func (ctrl *ArticleController) GetArticle(c *gin.Context) {
 	c.JSON(http.StatusOK, article)
 }
 
-func (ctrl *ArticleController) UpdateArticle(c *gin.Context) {}
+func (ctrl *ArticleController) UpdateArticle(c *gin.Context) {
+	articleID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	title := c.PostForm("title")
+	content := c.PostForm("content")
+	if title == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "title cannot be empty"})
+		return
+	}
+	if content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "content cannot be empty"})
+		return
+	}
+	ctx := c.Request.Context()
+	if err := ctrl.articleUC.UpdateArticle(ctx, domain.ArticleID(articleID), title, content); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(http.StatusOK)
+}
 
 func (ctrl *ArticleController) DeleteArticle(c *gin.Context) {}

@@ -13,9 +13,10 @@ func setupRouter() *gin.Engine {
 
 	// データベース初期化
 	db := infra.InitDB()
+	tx := infra.NewTxAdmin(db)
 
 	articleRepo := repository.NewSQLArticleRepository(db)
-	articleUC := usecase.NewArticleUsecase(articleRepo)
+	articleUC := usecase.NewArticleUsecase(articleRepo, tx)
 	articleController := controller.NewArticleController(articleUC)
 
 	// 記事関連のエンドポイント
