@@ -18,7 +18,7 @@ func NewMockArticleRepository() *MockArticleRepository {
 	}
 }
 
-func (m *MockArticleRepository) Get(ctx context.Context, id domain.ArticleID) (*domain.Article, error) {
+func (m *MockArticleRepository) Get(_ context.Context, id domain.ArticleID) (*domain.Article, error) {
 	if m.Err != nil {
 		return nil, m.Err
 	}
@@ -29,7 +29,7 @@ func (m *MockArticleRepository) Get(ctx context.Context, id domain.ArticleID) (*
 	return article, nil
 }
 
-func (m *MockArticleRepository) Create(ctx context.Context, article *domain.Article) error {
+func (m *MockArticleRepository) Create(_ context.Context, article *domain.Article) error {
 	if m.Err != nil {
 		return m.Err
 	}
