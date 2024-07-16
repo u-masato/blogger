@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/u-masato/blogger/3-1/internal/controller"
-	"github.com/u-masato/blogger/3-1/repository"
+	"github.com/u-masato/blogger/3-1/internal/repository"
 )
 
 func setupRouter() *gin.Engine {

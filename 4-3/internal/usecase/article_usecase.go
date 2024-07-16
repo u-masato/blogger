@@ -25,6 +25,7 @@ func NewArticleUsecase(articleRepo IArticleRepository, tx ITxAdmin) *Usecase {
 	return &Usecase{
 		articleRepo: articleRepo,
 		tx:          tx,
+	}
 }
 
 func (uc *Usecase) GetArticleByID(ctx context.Context, id domain.ArticleID) (*domain.Article, error) {
